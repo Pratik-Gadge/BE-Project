@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Citation Analysis</title>
+    <link rel="stylesheet" href="{{url_for('static',filename ='css/citation_analysis.css')}}">
+
+    <link rel="icon" href="" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+
+</head>    
+<body>
+    <header class="navbar">
+        <h2 class="logo"><a href="/">webcite</a></h2>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/citation_analysis">Citation Analysis</a></li>
+            </ul>
+        </nav>
+        <a href="#" id="logout"><button>Logout</button></a>
+    </header>
+    
+    <div class="uploaded-area">
+        <form action = "" method = "post" enctype="multipart/form-data">  
+            <label for="citation">Citation :</label>
+            <input id="citation" type="text" name="Citation" placeholder="Enter your citation here"> 
+            <button type="submit">Submit</button> 
+        </form>  
+    </div>
+
+
+    <div class="results">
+        <h2>Results</h2>
+        <div class="display-results">
+            <ul>
+                {% if cite %}
+                <li>{{ cite }}</li>
+                <li><b>Citation Style :</b> {{ content }}<li>
+                {% endif %}    
+            </ul>
+        </div>
+    </div>
+
+
+    <!-----<script src="{{ url_for('static', filename='js/ca_script.js')}}"></script>------>
+</body>
+</html>

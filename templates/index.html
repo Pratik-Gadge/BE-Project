@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Landing Page</title>
+    <link rel="stylesheet" href="{{url_for('static',filename ='css/landing.css')}}">
+    <link rel="icon" href="" type="image/x-icon">
+</head>    
+<body>
+
+    <header>
+        <h2 class="logo"><a href="/">webcite</a></h2>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/citation_analysis">Citation Analysis</a></li>
+            </ul>
+        </nav>
+        <a href="#" id="logout"><button>Logout</button></a>
+    </header>
+    <!-----<p>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class=flashes>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+    </p>
+    -------->
+    <div class="uploaded-area">
+        <form action = "" method = "post" enctype="multipart/form-data">
+            <label for="fileinput">Choose File :</label>  
+            <input id="fileinput" class="file-input" type="file" name="file" />  
+            <input class="submit-button" type = "submit" value="Upload" >  
+        </form>  
+    </div>
+
+    <!-------<div class="upload-file">
+        <header>Upload File</header>
+        <form action="/success" method="POST">
+            <input type="file" name="file" accept="application/pdf" class="file-input" fromenctype="multipart/form-data">
+            <p>Browse File to Upload</p>
+            <button type="submit" value="Upload">Submit</button>
+        </form>
+    </div>
+----------->
+    <div class="results"> 
+        <h2>Results</h2> <br>
+        <p>Bibliographic references formatted in HTML form. (Author name ,Year of Publication, Citation Style)</p><br>
+        <div class="display-results">
+            {%for i in data%}
+            <ul>
+                <li><b>{{data.index(i)+1}} : </b> {{i[0]}}</li>
+                <li><b>Authors :</b> {{i[1]}}</li>
+                <li><b>Year of Publication :</b> {{i[2]}}</li>
+                <li><b>Citation Style :</b>{{i[3]}}</li>
+            </ul>
+            <br>
+            {%endfor%}
+        </div>
+    </div>
+
+</body>
+</html>

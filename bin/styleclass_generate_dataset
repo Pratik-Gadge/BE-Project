@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+
+import argparse
+import csv
+import logging
+import re
+
+from styleclass.settings import STYLES
+from crossref_commons.retrieval import get_publication_as_refstring
+from crossref_commons.sampling import get_sample
+from multiprocessing import Pool
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='create an evaluation dataset')
+    parser.add_argument('-s',
+                        '--size',
+                        help='size of sample',
+                        type=int,
+                        required=True)
+    parser.add_argument('-l',
+                        '--styles',
+                        help='comma-separated citation style names',
+                        type=str,
+                        default=','.join(STYLES))
+    parser.add_argument('-o',
+                        '--output',
+                        help='output dataset file (CSV)',
+                        type=str,
+                        required=True)
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s %(levelname)s %(message)s')
+
+    sample = get_sample(size=args.size)
+    dois = [s.get('DOI') for s in sample]
+
+    dois_styles = [(doi, style) for doi in dois
+                   for style in args.styles.split(',')]
+
+    with Pool() as p:
+        dataset = p.starmap(get_publication_as_refstring, dois_styles)
+
+    with open(args.output, 'w') as csvfile:
+        writer = csv.writer(csvfile)
+        for ds, ref_string in zip(dois_styles, dataset):
+            writer.writerow(
+                [ds[0], ds[1],
+                 re.sub(r'\s+', ' ', ref_string).strip()])

@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+
+import argparse
+import logging
+import os
+import sys
+
+from styleclass.classify import classify
+from styleclass.train import get_default_model, read_model
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Infer citation style based on the reference string')
+    parser.add_argument('-m', '--model', help='model file', type=str)
+    parser.add_argument('-r', '--reference', help='reference string', type=str)
+    parser.add_argument('-i',
+                        '--input',
+                        help='file with reference strings, one per line',
+                        type=str)
+    parser.add_argument('-o', '--output', help='output file', type=str)
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s %(levelname)s %(message)s')
+
+    if not args.reference and not args.input:
+        logging.error('Input reference(s) need to be provided')
+        parser.print_help()
+        sys.exit(1)
+
+    if args.model is None:
+        model = get_default_model()
+    else:
+        model = read_model(args.model)
+
+    if args.reference:
+        print(classify(args.reference, *model)[0])
+
+    if args.input:
+        if not args.output:
+            logging.error('Output file path needs to be provided')
+            parser.print_help()
+            sys.exit(1)
+        with open(args.input, 'r') as file:
+            ref_strings = [line.strip() for line in file]
+
+        styles = classify(ref_strings, *model)
+        with open(args.output, 'w') as file:
+            file.writelines([s + '\n' for s in styles])

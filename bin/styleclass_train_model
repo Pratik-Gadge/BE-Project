@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+
+import argparse
+import logging
+import pandas as pd
+
+from styleclass.features import add_noise, clean_dataset, \
+    read_dataset, generate_unknown
+from styleclass.train import train, store_model
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Train a citation style classifier')
+    parser.add_argument('-d',
+                        '--dataset',
+                        help='dataset file path',
+                        type=str,
+                        required=True)
+    parser.add_argument('-u',
+                        '--unknown',
+                        help='number of strings of "unknown" style',
+                        type=int)
+    parser.add_argument('-o',
+                        '--output',
+                        help='output model file',
+                        type=str,
+                        required=True)
+    parser.add_argument('-r',
+                        '--randomstate',
+                        help='seed',
+                        type=int,
+                        default=0)
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s %(levelname)s %(message)s')
+
+    logging.info('Reading the data...')
+    dataset = read_dataset(args.dataset)
+    logging.info('Dataset size: {}'.format(dataset.shape[0]))
+
+    logging.info('Cleaning the data...')
+    dataset = clean_dataset(dataset)
+    logging.info('Dataset size after cleaning: {}'.format(dataset.shape[0]))
+
+    logging.info('Adding noise...')
+    dataset = add_noise(dataset, random_state=args.randomstate)
+    logging.info('Dataset size after cleaning: {}'.format(dataset.shape[0]))
+
+    if args.unknown is not None and args.unknown > 0:
+        logging.info('Adding "unknown" strings...')
+        dataset_unknown = generate_unknown(dataset,
+                                           args.unknown,
+                                           random_state=args.randomstate)
+        dataset = pd.concat([dataset, dataset_unknown])
+        logging.info(
+            'Dataset size after adding strings of unknown style: {}'.format(
+                dataset.shape[0]))
+
+    logging.info('Training...')
+    model = train(dataset, random_state=args.randomstate)
+
+    store_model(args.output, *model)
+    logging.info('Model written to {}'.format(args.output))
